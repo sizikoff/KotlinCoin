@@ -10,7 +10,7 @@
         android:id="@+id/tvSymbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         tools:text="BTC" />
 
     <TextView
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin"
         android:layout_marginStart="@dimen/margin"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         tools:text="Bitcoin" />
 
     <TextView
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin"
         android:layout_marginStart="@dimen/margin"
-        android:textColor="@android:color/black"
+        android:textColor="@color/black"
         tools:text="+50%" />
 
     <TextView

@@ -2,11 +2,13 @@ package tr.sizikoff.coin
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,12 +28,15 @@ class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiv
 
     private lateinit var madapter :CoinsAdapter
     lateinit var recycler:RecyclerView
+    lateinit var builder:AlertDialog.Builder
+    lateinit var mAlertDialog:AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        builder = AlertDialog.Builder(this)
+        mAlertDialog = builder.create()
         registerReceiver(ConnectivityReceiver(), IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
-
     }
 
     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
@@ -65,11 +70,20 @@ class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiv
 
         if (!isConnected) {
 
-            Toast.makeText(this@MainActivity,"Включи интернет мудилдо", Toast.LENGTH_SHORT).show()
-        } else {
-            loadCoins()
-            Toast.makeText(this@MainActivity,"bYNTHYTN TCNM", Toast.LENGTH_SHORT).show()
+            with(mAlertDialog)
+            {
+                setTitle("Error Connection")
+                setMessage("Check your internet")
+                setCancelable(false)
+                show()
 
+            }
+        } else {
+            with(mAlertDialog)
+            {
+            cancel()
+            }
+            loadCoins()
         }
 
 
