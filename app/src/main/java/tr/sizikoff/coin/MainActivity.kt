@@ -1,12 +1,14 @@
 package tr.sizikoff.coin
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -26,30 +28,32 @@ import tr.sizikoff.net.Retrofit
 @SuppressLint("Registered")
 class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiverListener {
 
-    private lateinit var madapter :CoinsAdapter
+    lateinit var madapter :CoinsAdapter
     lateinit var recycler:RecyclerView
     lateinit var builder:AlertDialog.Builder
     lateinit var mAlertDialog:AlertDialog
-
+    lateinit var progressBar:ProgressDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        progressBar = ProgressDialog(this@MainActivity)
+        progressBar.setTitle("Загрузка")
+        progressBar.setMessage("Грузятся данные")
+        progressBar.show()
         builder = AlertDialog.Builder(this)
         mAlertDialog = builder.create()
         registerReceiver(ConnectivityReceiver(), IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
     }
-
     val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
         throwable.printStackTrace()
     }
-
-
     private fun loadCoins() {
         recycler = findViewById(R.id.recyclerView)
         recycler.layoutManager = LinearLayoutManager(this)
         CoroutineScope(Dispatchers.IO+coroutineExceptionHandler).launch {
         val response = Retrofit.instance.create(Api::class.java).getData(API_KEY, LIMIT)
             if (response.isSuccessful){
+                progressBar.cancel()
                 runOnUiThread {
                     madapter = CoinsAdapter((response.body()?.data)!!)
                     madapter.notifyDataSetChanged()
@@ -57,6 +61,7 @@ class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiv
                 }
             }else{
                 runOnUiThread {
+                    progressBar.cancel()
                     val duration = Toast.LENGTH_SHORT
                     val toast = Toast.makeText(this@MainActivity,"что то не так", duration)
                     toast.show()
@@ -64,12 +69,8 @@ class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiv
             }
         }
     }
-
-
     private fun showMessage(isConnected: Boolean) {
-
         if (!isConnected) {
-
             with(mAlertDialog)
             {
                 setTitle("Error Connection")
@@ -85,17 +86,11 @@ class MainActivity : AppCompatActivity(),ConnectivityReceiver.ConnectivityReceiv
             }
             loadCoins()
         }
-
-
     }
-
     override fun onResume() {
         super.onResume()
-
         ConnectivityReceiver.connectivityReceiverListener = this
     }
-
-
     override fun onNetworkConnectionChanged(isConnected: Boolean) {
         showMessage(isConnected)
     }
